@@ -1,0 +1,9 @@
+﻿CREATE PROCEDURE [dbo].[AVA_BPSpecialPriceUpdate] 
+AS
+BEGIN
+	SET NOCOUNT ON;
+	Select Code AS 'Id', U_AVA_User AS 'User', U_AVA_Cardcode AS 'CardCode',U_AVA_File AS 'FileName',U_AVA_Type AS 'Type',
+	(Select U_AV_PATH from OADM) AS 'FilePath', (Select U_AV_Domain from OADM) AS 'Domain',
+	(Select U_AV_UserName from OADM) AS 'UserName', (Select U_AV_Password from OADM) AS 'Password'
+	from [@AVA_SPLLOG] where U_AVA_InProg = 'IP'
+END

@@ -1,0 +1,18 @@
+USE [HYTORC_LATEST]
+GO
+/****** Object:  StoredProcedure [dbo].[AVA_BPSpecialPriceUpdate]    Script Date: 12/21/2023 9:21:23 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [dbo].[AVA_BPSpecialPriceUpdate] 
+AS
+BEGIN
+	SET NOCOUNT ON;
+	Select Code AS 'Id', U_AVA_User AS 'User', U_AVA_Cardcode AS 'CardCode',
+	(Select U_AV_PATH From OADM) AS 'FilePath',
+	U_AVA_File AS 'FileName',U_AVA_Type AS 'Type' from [@AVA_SPLLOG] where U_AVA_InProg = 'IP'
+END
+
+
+

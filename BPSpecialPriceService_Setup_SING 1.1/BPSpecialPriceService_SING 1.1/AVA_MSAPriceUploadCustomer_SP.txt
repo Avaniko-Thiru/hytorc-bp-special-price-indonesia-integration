@@ -1,0 +1,33 @@
+USE [HYTORC_LATEST]
+GO
+/****** Object:  StoredProcedure [dbo].[AVA_MSAPriceUploadCustomer]    Script Date: 11/14/2023 4:05:49 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [dbo].[AVA_MSAPriceUploadCustomer] 
+AS
+BEGIN
+	SET NOCOUNT ON;
+	Select A.Code AS 'MSAPUCode',C.LineId AS 'MSAPULine', --(Select ISNULL(MAX(Code) + 1,0) FROM [@AVA_MSAPAH]) AS 'MSAPACode',
+	(SELECT CONCAT('MSAPA-',RIGHT(REPLICATE('0',5)+(ISNULL(MAX(CAST( right(code,LEN(code)-CHARINDEX('-',code)) AS INT))+1,1)), 5)) AS Code FROM [@AVA_MSAPAH])  AS 'MSAPACode',
+	C.U_AVA_CCode AS 'CardCode', C.U_AVA_CName AS 'CardName',A.U_AVA_MSAAg AS 'MSAAgreementNo','Y' AS 'Active',
+	A.CreateDate AS 'CreateDate', (Select USER_CODE from OUSR where USERID=A.UserSign) AS 'CreateUser',
+	C.U_AVA_STCode AS 'ShipToCode', C.U_AVA_Str AS 'Street',C.U_AVA_City AS 'City',
+	A.UpdateDate AS 'UpdateDate',(Select USER_CODE from OUSR where USERID=A.UserSign) AS 'UpdateUser',
+	C.U_AVA_State AS 'State',C.U_AVA_ZCode AS 'ZipCode',A.U_AVA_Commn AS 'Comments'
+	--B.U_AVA_ItmCd AS 'ItemCode',B.U_AVA_FPrc AS 'FixedPrice',B.U_AVA_DiscP AS 'DiscountPercent',B.U_AVA_PLNm AS 'PriceListName',
+	--B.U_AVA_SubFm AS 'SubFamily',B.U_AVA_ItmBr AS 'ItemBrand',B.U_AVA_TCls AS 'ToolClass',
+	--CASE WHEN B.U_AVA_FPrc > 0 THEN B.U_AVA_FPrc
+	--WHEN B.U_AVA_FPrc <= 0 AND B.U_AVA_DiscP > 0 THEN
+	--(Select Price - (B.U_AVA_DiscP * (Price / 100)) from ITM1 Where ItemCode = B.U_AVA_ItmCd AND PriceList = B.U_AVA_PLNm)
+	--ELSE 0.00
+	--END AS 'CalculatedPrice'
+	from [@AVA_MSAPUH] A --INNER JOIN [@AVA_MSAPUI] B ON A.Code = B.Code
+	INNER JOIN [@AVA_MSAPUC] C ON A.Code = C.Code
+	where A.U_AVA_DocStatus = 'O' --AND B.U_AVA_LINESTATUS = 'O' 
+	AND C.U_AVA_LINESTATUS = 'O'
+	--AND ISNULL(B.U_AVA_ItmCd,'') <> '' 
+	AND ISNULL(C.U_AVA_CCode,'') <> ''
+	AND ISNULL(C.U_AVA_Sel,'N')='Y'
+END
